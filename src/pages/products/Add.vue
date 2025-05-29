@@ -32,7 +32,9 @@
             </Label>
             <input type="file" @change="handleFileChange" placeholder="Image URL" class=" flex input " required />
         </div>
-        <button type="submit" class="btn">Create</button>
+        <div class="flex justify-content-end">
+          <button type="submit" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 flex justify-content-end w-20">Create</button>
+        </div>
       </form>
       <div v-if="showCancelDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white p-6 rounded-lg shadow-xl text-center w-80">
