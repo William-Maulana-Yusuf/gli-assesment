@@ -32,7 +32,9 @@
             </Label>
             <input type="file" @change="handleFileChange" placeholder="Image URL" class=" flex input border-2 border-black rounded h-10 px-2" required />
         </div>
-        <button type="submit" class="btn">Create</button>
+        <div class="flex justify-content-end">
+          <button type="submit" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 flex justify-content-end w-20">Create</button>
+        </div>
       </form>
     </div>
   </template>
