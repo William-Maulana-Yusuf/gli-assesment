@@ -4,13 +4,14 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import './index.css'
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from './pages/Home.vue'
 import Login from './pages/Login.vue'
 import Dashboard from './pages/Dashboard.vue'
 import DefaultLayout from './layout/index.vue'
 import List from './pages/products/List.vue'
 import Add from './pages/products/Add.vue'
 import Edit from './pages/products/Edit.vue'
+import { createPinia } from 'pinia'
+import { authMiddleware } from './middleware/auth'
 
 
 const router = createRouter({
@@ -18,7 +19,8 @@ const router = createRouter({
     routes: [
         { 
             path: '/', 
-            component: Login 
+            component: Login,
+            meta: { requiresAuth: false }
         },
         {
             path: '/dashboard',
@@ -27,29 +29,36 @@ const router = createRouter({
               {
                 path: '',
                 name: 'Dashboard',
-                component: Dashboard
+                component: Dashboard,
+                meta: { requiresAuth: true }
               },
               {
                 path: '/products',
                 name: 'List',
-                component: List
+                component: List,
+                meta: { requiresAuth: true }
               },
               {
                 path: '/products/add',
                 name: 'Add',
-                component: Add
+                component: Add,
+                meta: { requiresAuth: true }
               },
               {
                 path: '/products/edit/:id',
                 name: 'Edit',
-                component: Edit 
+                component: Edit,
+                meta: { requiresAuth: true }
               }
             ]
         }
     ]
 });
 
+router.beforeEach(authMiddleware)
 const app = createApp(App)
+const pinia = createPinia()
 
+app.use(pinia)
 app.use(router);
 app.mount('#app')

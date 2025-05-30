@@ -6,6 +6,45 @@
         <RouterLink to="/products/add" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Add Product</RouterLink>
     </div>
 
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <input
+      type="text"
+      v-model="filters.title"
+      placeholder="Search by title"
+      class="border p-2 rounded"
+    />
+
+    <input
+      type="number"
+      v-model.number="filters.price_min"
+      placeholder="Min Price"
+      class="border p-2 rounded"
+    />
+
+    <input
+      type="number"
+      v-model.number="filters.price_max"
+      placeholder="Max Price"
+      class="border p-2 rounded"
+    />
+
+    <select v-model="filters.categoryId" class="border p-2 rounded">
+      <option value="">All Categories</option>
+      <option v-for="category in categories" :key="category.id" :value="category.id">
+        {{ category.name }}
+      </option>
+    </select>
+  </div>
+
+  <div class="mb-4 flex space-x-2">
+    <button @click="applyFilters" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+      Apply Filters
+    </button>
+    <button @click="resetFilters" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+      Reset Filters
+    </button>
+  </div>
+  
       <table v-if="!loading && products.length" class="w-full border-collapse mb-4">
         <thead>
           <tr class="bg-gray-200 text-left">
@@ -69,48 +108,76 @@
     </div>
   </template>
   
-  <script setup>
-  import { ref, onMounted } from 'vue'
-  import axios from 'axios'
-  import { useRouter } from 'vue-router'
+<script setup>
+import { ref, onMounted, watch } from 'vue'
+import axios from 'axios'
+import { useRouter } from 'vue-router'
 
-  const router = useRouter() 
-  const products = ref([])
-  const loading = ref(true)
-  const error = ref('')
-  const currentPage = ref(1)
-  const limit = 5
-  const totalPages = 5 // You can set this dynamically if needed
-  
-  const fetchProducts = async () => {
-    loading.value = true
-    error.value = ''
-    try {
-      const offset = (currentPage.value - 1) * limit
-      const response = await axios.get(
-        `https://api.escuelajs.co/api/v1/products?offset=${offset}&limit=${limit}`
-      )
-      products.value = response.data
-    } catch (err) {
-      error.value = 'Failed to fetch products.'
-      console.error(err)
-    } finally {
-      loading.value = false
-    }
-  }
-  
-  const changePage = (page) => {
-    currentPage.value = page
-    fetchProducts()
-  }
-  
-  onMounted(fetchProducts)
+const router = useRouter()
+const products = ref([])
+const categories = ref([])
+const loading = ref(true)
+const error = ref('')
+const currentPage = ref(1)
+const limit = 5
+const totalPages = 5 // Optionally calculate this dynamically
 
-  const goToEdit = (id) => {
-    router.push(`/products/edit/${id}`)
-  }
+const filters = ref({
+  title: '',
+  price_min: null,
+  price_max: null,
+  categoryId: ''
+})
 
-  const deleteProduct = async (id) => {
+// Fetch categories for dropdown
+const fetchCategories = async () => {
+  try {
+    const res = await axios.get('https://api.escuelajs.co/api/v1/categories')
+    categories.value = res.data
+  } catch (err) {
+    console.error('Error fetching categories', err)
+  }
+}
+
+// Fetch filtered products
+const fetchProducts = async () => {
+  loading.value = true
+  error.value = ''
+  try {
+    const offset = (currentPage.value - 1) * limit
+    let query = `?offset=${offset}&limit=${limit}`
+
+    if (filters.value.title) query += `&title=${encodeURIComponent(filters.value.title)}`
+    if (filters.value.price_min !== null) query += `&price_min=${filters.value.price_min}`
+    if (filters.value.price_max !== null) query += `&price_max=${filters.value.price_max}`
+    if (filters.value.categoryId) query += `&categoryId=${filters.value.categoryId}`
+
+    const url = `https://api.escuelajs.co/api/v1/products${query}`
+    const response = await axios.get(url)
+    products.value = response.data
+  } catch (err) {
+    error.value = 'Failed to fetch products.'
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+const applyFilters = () => {
+  currentPage.value = 1
+  fetchProducts()
+}
+
+const changePage = (page) => {
+  currentPage.value = page
+  fetchProducts()
+}
+
+const goToEdit = (id) => {
+  router.push(`/products/edit/${id}`)
+}
+
+const deleteProduct = async (id) => {
   if (confirm('Are you sure you want to delete this product?')) {
     try {
       await axios.delete(`https://api.escuelajs.co/api/v1/products/${id}`)
@@ -120,5 +187,22 @@
     }
   }
 }
+
+const resetFilters = () => {
+  filters.value = {
+    title: '',
+    price_min: null,
+    price_max: null,
+    categoryId: ''
+  }
+  currentPage.value = 1
+  fetchProducts()
+}
+
+onMounted(() => {
+  fetchCategories()
+  fetchProducts()
+})
+
   </script>
   
