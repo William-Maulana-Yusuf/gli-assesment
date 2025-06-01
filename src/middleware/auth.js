@@ -5,8 +5,11 @@ export function authMiddleware(to, from, next) {
   
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     // Redirect to login if trying to access protected route
-    next('/login')
+    next('/dashboard')
   } else if (to.path === '/login' && authStore.isAuthenticated) {
+    // Redirect to dashboard if already logged in
+    next('/dashboard')
+  } else if (to.path === '/' && authStore.isAuthenticated) {
     // Redirect to dashboard if already logged in
     next('/dashboard')
   } else {

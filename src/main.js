@@ -12,6 +12,7 @@ import Add from './pages/products/Add.vue'
 import Edit from './pages/products/Edit.vue'
 import { createPinia } from 'pinia'
 import { authMiddleware } from './middleware/auth'
+import NotFound from './pages/404.vue'
 
 
 const router = createRouter({
@@ -21,6 +22,11 @@ const router = createRouter({
             path: '/', 
             component: Login,
             meta: { requiresAuth: false }
+        },
+        { 
+            path: '/:pathMatch(.*)*', 
+            name: 'NotFound', 
+            component: NotFound 
         },
         {
             path: '/dashboard',
