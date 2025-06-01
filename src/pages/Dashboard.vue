@@ -35,9 +35,9 @@
     </div>
     <div class="bg-white rounded-xl shadow p-4 mt-6">
       <h2 class="text-xl font-semibold mb-4">Most Used Category</h2>
-      <ul class="space-y-2 text-gray-700">
-        <li v-for="item in categoryUsageList" :key="item.name" class="flex justify-between">
-          <span>{{ item.name }}</span>
+      <ul class="divide-y space-y-2 text-gray-700">
+        <li v-for="(item, index) in categoryUsageList" :key="item.name" class="flex justify-between">
+          <span>{{ index + 1 }}. {{ item.name }}</span>
           <span class="font-semibold">{{ item.count }}</span>
         </li>
       </ul>
