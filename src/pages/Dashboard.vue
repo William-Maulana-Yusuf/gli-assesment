@@ -33,6 +33,15 @@
         </ul>
       </div>
     </div>
+    <div class="bg-white rounded-xl shadow p-4 mt-6">
+      <h2 class="text-xl font-semibold mb-4">Most Used Category</h2>
+      <ul class="space-y-2 text-gray-700">
+        <li v-for="item in categoryUsageList" :key="item.name" class="flex justify-between">
+          <span>{{ item.name }}</span>
+          <span class="font-semibold">{{ item.count }}</span>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -46,6 +55,7 @@ const categories = ref([])
 const totalProducts = ref(0)
 const maxPrice = ref(0)
 const averagePrice = ref(0)
+const categoryUsageList = ref([])
 
 onMounted(async () => {
   try {
@@ -56,6 +66,19 @@ onMounted(async () => {
 
     products.value = prodRes.data
     categories.value = catRes.data
+
+    const usageMap = {}
+
+    products.value.forEach(product => {
+      const name = product.category.name
+      usageMap[name] = (usageMap[name] || 0) + 1
+    })
+
+    // Convert to array and sort
+    categoryUsageList.value = Object.entries(usageMap)
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => ({ name, count }))
+
     totalProducts.value = products.value.length
     maxPrice.value = Math.max(...products.value.map(p => p.price))
 
